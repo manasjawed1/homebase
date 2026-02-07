@@ -3,8 +3,8 @@ import TopNav from "@/components/layout/TopNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Homebase — AI-Powered Property Management",
-  description: "AI co-pilot for property management in Dubai/UAE",
+  title: "Homebase — Property Management Authority",
+  description: "AI-powered property management system for Dubai/UAE",
 };
 
 export default function RootLayout({
@@ -22,9 +22,15 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-bg">
         <TopNav />
-        <main className="max-w-[1400px] mx-auto px-6 py-8">
+        <main className="max-w-[1400px] mx-auto px-6 py-6">
           {children}
         </main>
+        <footer className="border-t border-border bg-white mt-12">
+          <div className="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between">
+            <p className="text-xs text-text-muted">Homebase Property Management Authority &mdash; Dubai, United Arab Emirates</p>
+            <p className="text-xs text-text-muted">v2.1.0 &middot; All systems operational</p>
+          </div>
+        </footer>
       </body>
     </html>
   );

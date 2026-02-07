@@ -1,6 +1,67 @@
 # Homebase — Property Management MVP
 
 > Hackathon MVP. Firebase-only stack. Import into Firebase Studio, run, deploy.
+---
+
+## **Homebase – Property Management OS for Real estate in UAE**
+
+### **The Problem**
+
+Property management in the UAE isn't just operationally intensive—it's **regulation-heavy and renewal-driven**. Every lease resets annually, triggering a cascade of tasks that must be done perfectly:
+
+- **RERA compliance:** Rent increases must align with the Smart Rental Index bands issued by the Dubai Land Department
+- **90-day notice rule:** Miss the window, lose negotiating power 
+- **Ejari renewals:** Every contract change requires coordinated documentation 
+- **Security deposit disputes:** 40% of tenant conflicts stem from unclear move-out terms
+- **Multi-language coordination:** Miscommunication across English/Arabic amplifies friction
+- **High expat turnover:** Constant move-ins, screenings, and paperwork cycles
+
+Most property managers spend 70% of their time on repetitive compliance tasks and only 30% on what actually matters: **relationships, trust, and tenant experience.**
+
+***
+
+### **Our Solution**
+
+**Homebase is a renewals rail for Dubai**—an AI agent that moves lease, maintenance, and compliance information between tenants, landlords, vendors, and regulators, so property managers can focus on people, not paperwork.
+
+It handles two critical flows:
+
+**1. Government-Compliant Lease Renewals**
+- Flags leases 90+ days out
+- Pulls Smart Rental Index data for each unit 
+- Suggests legal rent adjustments within RERA bands
+- Drafts bilingual notices and sends via WhatsApp/email
+- Answers tenant questions ("Why is rent increasing? Is this legal?")
+- Tracks acceptance and initiates Ejari renewal workflows 
+
+**2. Maintenance Coordination**
+- Receives tenant complaints in natural language (WhatsApp/voice)
+- Classifies urgency, category, and vendor specialization
+- Auto-assigns with SLA tracking (4h/24h/48h)
+- Sends real-time updates to tenants in EN/AR
+- Logs every action for compliance and dispute resolution
+
+***
+
+### **Our Take**
+
+Property management has always been about **people**. Tenants want comfort and clarity. Owners want maintained assets. Managers work tirelessly to connect the two.
+
+**We don't replace property managers—we elevate them.** By handling the repetitive, rule-heavy workflows, Homebase lets humans do what they do best: build relationships, resolve exceptions, and provide a trusted face to the brand.
+
+The competitive advantage isn't cost-cutting alone. It's becoming **more responsive, more compliant, and more trusted**—setting new standards in tenant experience, owner confidence, and operational excellence.
+
+***
+
+### **Why This Matters for The Adaptive City**
+
+Homebase is invisible infrastructure that makes Dubai's housing market:
+
+- **Responsive:** Real-time WhatsApp coordination across tenants, vendors, and managers
+- **Resilient:** Automatic compliance with RERA, Ejari, and notice requirements prevents legal failures
+- **Human-centered:** Agents handle bureaucracy; humans handle empathy and negotiation
+
+If scaled, Homebase-style agents could feed anonymized signals to regulators—showing where rent pressure is building, which vendors are reliable, and where maintenance standards are slipping—**without reading a single chat.**
 
 ---
 
@@ -338,3 +399,4 @@ npm run build      # Build for production
 npm run seed       # Populate Firestore with demo data
 firebase deploy    # Deploy to Firebase Hosting
 ```
+

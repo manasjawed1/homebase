@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import TopNav from "@/components/layout/TopNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,7 +21,10 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-bg">
-        {children}
+        <TopNav />
+        <main className="max-w-[1400px] mx-auto px-6 py-8">
+          {children}
+        </main>
       </body>
     </html>
   );

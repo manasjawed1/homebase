@@ -13,7 +13,6 @@ const navItems = [
   { label: "Vendors", href: "/vendors" },
   { label: "Mobile", href: "/mobile" },
   { label: "System", href: "/system" },
-  { label: "Style Guide", href: "/style-guide" },
 ];
 
 export default function TopNav() {
@@ -23,7 +22,6 @@ export default function TopNav() {
   return (
     <header className="bg-white border-b border-border sticky top-0 z-50">
       <div className="max-w-[1400px] mx-auto px-6">
-        {/* Logo Row */}
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-3">
             <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
@@ -44,16 +42,15 @@ export default function TopNav() {
               <path d="M2 12h20"/>
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
             </svg>
-            العربية
+            {lang === "en" ? "العربية" : "English"}
           </button>
         </div>
 
-        {/* Nav Tabs */}
         <nav className="flex gap-1 -mb-px">
           {navItems.map((item) => {
-            const isActive = pathname === item.href || 
+            const isActive = pathname === item.href ||
               (item.href !== "/" && pathname.startsWith(item.href));
-            
+
             return (
               <Link
                 key={item.href}

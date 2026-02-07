@@ -1,28 +1,45 @@
-# Homebase MVP Scaffolding (Next.js + Convex + Clerk Edition)
+# Homebase — Property Management MVP
+
+> Hackathon MVP. Firebase-only stack. Import into Firebase Studio, run, deploy.
+
+---
 
 ## Architecture
 
 ```text
-┌───────────────────────────────────────────────────────────────┐
-│                         Next.js App                            │
-│  App Router + Server Components + Route Handlers (optional)    │
-│  Tailwind v4 UI + Clerk Auth (client + middleware)             │
-└───────────────┬───────────────────────────────┬───────────────┘
-                │                               │
-                │ Convex client (queries/muts)   │ Clerk session/JWT
-                ▼                               ▼
-┌──────────────────────────┐          ┌──────────────────────────┐
-│         Convex            │          │          Clerk            │
-│  DB + mutations/queries   │          │ Auth UI + sessions + orgs │
-│  file storage (optional)  │          │ user identity + roles     │
-└───────────────┬──────────┘          └──────────────────────────┘
-                │
-                ▼
-      Future integrations (stubs)
-   WhatsApp, RERA index, Ejari, AI agent
+┌──────────────────────────────────────────────────┐
+│              Next.js App (App Router)            │
+│      React UI + Tailwind CSS + shadcn/ui         │
+│      Client-side Firestore reads/writes          │
+└──────────────────┬───────────────────────────────┘
+                   │
+                   │ Firebase JS SDK (client)
+                   ▼
+┌──────────────────────────────────────────────────┐
+│                   Firebase                        │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐ │
+│  │  Firestore  │  │  Hosting   │  │  Storage   │ │
+│  │  (database) │  │  (deploy)  │  │  (files)   │ │
+│  └────────────┘  └────────────┘  └────────────┘ │
+└──────────────────────────────────────────────────┘
 ```
 
-Key shift: Convex replaces your "backend + database" layer. Next.js calls Convex directly via generated API.
+**No backend server. No auth complexity. No third-party services.**
+Everything runs through the Firebase JS SDK on the client side.
+
+---
+
+## Tech Stack
+
+| Layer     | Choice                  | Why                                      |
+| --------- | ----------------------- | ---------------------------------------- |
+| Framework | Next.js 14 (App Router) | File-based routing, React Server Comps   |
+| Styling   | Tailwind CSS v4         | Fast, utility-first                      |
+| UI Kit    | shadcn/ui               | Beautiful defaults, copy-paste components|
+| Database  | Cloud Firestore         | Realtime, zero-config, generous free tier|
+| Hosting   | Firebase Hosting        | One-command deploy, already configured   |
+| File storage | Firebase Storage     | Vendor docs, tenant files (future)       |
+| Auth      | **None for MVP**        | Hackathon — skip login, ship fast        |
 
 ---
 
@@ -30,237 +47,294 @@ Key shift: Convex replaces your "backend + database" layer. Next.js calls Convex
 
 ```text
 homebase/
-├── app/                                # Next.js app router
-│   ├── (auth)/sign-in/[[...sign-in]]/  # Clerk auth routes
-│   ├── (auth)/sign-up/[[...sign-up]]/
-│   ├── (dashboard)/                    # protected area (tabs/pages)
-│   │   ├── layout.tsx                  # auth gate + shell
-│   │   ├── page.tsx                    # dashboard home
-│   │   ├── properties/page.tsx
-│   │   ├── tenants/page.tsx
-│   │   ├── maintenance/page.tsx
-│   │   ├── renewals/page.tsx
-│   │   └── vendors/page.tsx
-│   ├── api/health/route.ts             # simple health endpoint
-│   ├── layout.tsx
-│   └── globals.css
+├── app/                            # Next.js App Router
+│   ├── layout.tsx                  # Root layout (providers, nav)
+│   ├── page.tsx                    # Dashboard home
+│   ├── properties/page.tsx         # Properties list + add
+│   ├── tenants/page.tsx            # Tenants list + add
+│   ├── maintenance/page.tsx        # Maintenance tickets
+│   ├── leases/page.tsx             # Leases & renewals
+│   └── vendors/page.tsx            # Vendors directory
 │
-├── components/                         # shared UI components
-│   ├── ui/                             # shadcn-ish primitives (optional)
-│   └── app/                            # feature components (screens/tabs)
+├── components/
+│   ├── layout/
+│   │   ├── Sidebar.tsx             # App sidebar nav
+│   │   └── TopBar.tsx              # Top bar (title, actions)
+│   ├── properties/
+│   │   ├── PropertyList.tsx
+│   │   └── PropertyForm.tsx
+│   ├── tenants/
+│   │   ├── TenantList.tsx
+│   │   └── TenantForm.tsx
+│   ├── maintenance/
+│   │   ├── TicketList.tsx
+│   │   └── TicketForm.tsx
+│   ├── leases/
+│   │   ├── LeaseList.tsx
+│   │   └── LeaseForm.tsx
+│   └── vendors/
+│       ├── VendorList.tsx
+│       └── VendorForm.tsx
 │
 ├── lib/
-│   ├── auth.ts                         # role helpers, org helpers
-│   ├── convex.ts                       # Convex client helpers (optional)
-│   └── constants.ts
+│   ├── firebase.ts                 # Firebase app init + Firestore instance
+│   ├── collections.ts              # Typed collection refs + helpers
+│   └── seed.ts                     # One-click seed script
 │
-├── hooks/                              # React hooks (optional)
-│   ├── useProperties.ts                # wraps convex queries
-│   └── ...
+├── public/                         # Static assets
+│   └── index.html                  # (replaced by Next.js)
 │
-├── convex/                             # Convex backend
-│   ├── schema.ts                       # tables + indexes
-│   ├── users.ts                        # mutations/queries
-│   ├── buildings.ts
-│   ├── properties.ts
-│   ├── tenants.ts
-│   ├── leases.ts
-│   ├── maintenanceTickets.ts
-│   ├── vendors.ts
-│   ├── vendorDocuments.ts
-│   ├── renewals.ts                     # can be derived or stored
-│   └── integrations/
-│       ├── whatsapp.ts                 # stubs (ABCs/interfaces)
-│       ├── rera.ts
-│       ├── ejari.ts
-│       └── aiAgent.ts
-│
-├── seed/                               # seed data (json) + scripts
-│   ├── demo.users.json
-│   ├── demo.buildings.json
-│   └── ...
-│
-├── middleware.ts                       # Clerk middleware (route protection)
+├── firebase.json                   # Firebase Hosting config
+├── .firebaserc                     # Firebase project link
 ├── package.json
 ├── next.config.ts
-├── postcss.config.mjs
-├── tailwind.config.ts                  # Tailwind v4 config
-├── Makefile
-├── .env.example
-├── .gitignore
+├── tailwind.config.ts
+├── tsconfig.json
 └── README.md
 ```
 
 ---
 
-## Convex Data Model (tables)
+## Firestore Data Model
 
-Convex doesn't do "collections/documents" like Firestore. You'll model tables with typed fields + indexes.
+All collections live at the root level. No nesting. Simple flat structure.
 
-Suggested tables (mirrors your Firestore shape):
+### `buildings`
+| Field        | Type     | Example                  |
+| ------------ | -------- | ------------------------ |
+| name         | string   | "Marina Tower"           |
+| nameAr       | string   | "برج المارينا"           |
+| address      | string   | "Dubai Marina, Plot 23"  |
+| totalUnits   | number   | 120                      |
+| createdAt    | timestamp| auto                     |
 
-* users
+### `properties`
+| Field        | Type     | Example                  |
+| ------------ | -------- | ------------------------ |
+| buildingId   | string   | (ref to buildings doc)   |
+| unit         | string   | "1204"                   |
+| type         | string   | "apartment"              |
+| bedrooms     | number   | 2                        |
+| bathrooms    | number   | 2                        |
+| sqft         | number   | 1200                     |
+| rentAmount   | number   | 85000                    |
+| status       | string   | "occupied" / "vacant" / "maintenance" |
+| createdAt    | timestamp| auto                     |
 
-  * clerkUserId, name, email, role, language, createdAt
-* buildings
+### `tenants`
+| Field        | Type     | Example                  |
+| ------------ | -------- | ------------------------ |
+| name         | string   | "Ahmed Al Maktoum"       |
+| nameAr       | string   | "أحمد المكتوم"           |
+| email        | string   | "ahmed@email.com"        |
+| phone        | string   | "+971501234567"          |
+| emiratesId   | string   | "784-XXXX-XXXXXXX-X"    |
+| propertyId   | string   | (ref to properties doc)  |
+| createdAt    | timestamp| auto                     |
 
-  * name, nameAr, address, totalUnits, managerUserId
-* properties
+### `leases`
+| Field         | Type     | Example                 |
+| ------------- | -------- | ----------------------- |
+| propertyId    | string   | (ref to properties doc) |
+| tenantId      | string   | (ref to tenants doc)    |
+| startDate     | string   | "2025-03-01"            |
+| endDate       | string   | "2026-02-28"            |
+| rentAmount    | number   | 85000                   |
+| status        | string   | "active" / "expired" / "pending" |
+| renewalStatus | string   | "none" / "pending" / "renewed" |
+| createdAt     | timestamp| auto                    |
 
-  * buildingId, unit, type, bedrooms, bathrooms, sqft, status
-* leases
+### `maintenanceTickets`
+| Field        | Type     | Example                  |
+| ------------ | -------- | ------------------------ |
+| propertyId   | string   | (ref to properties doc)  |
+| tenantId     | string   | (ref to tenants doc)     |
+| vendorId     | string   | (ref to vendors doc)     |
+| type         | string   | "plumbing" / "electrical" / "hvac" / "general" |
+| status       | string   | "open" / "in_progress" / "resolved" / "closed" |
+| priority     | string   | "low" / "medium" / "high" / "urgent" |
+| description  | string   | "AC not cooling"         |
+| createdAt    | timestamp| auto                     |
 
-  * propertyId, tenantId, startDate, endDate, rentAmount, status, renewalStatus
-* tenants
-
-  * name, nameAr, email, phone, emiratesId, language
-* maintenanceTickets
-
-  * propertyId, tenantId, vendorId, type, status, priority, description, slaDeadline
-* vendors
-
-  * name, nameAr, specialty, rating, responseTime, location
-* vendorDocuments
-
-  * vendorId, type, status, expiryDate, fileStorageId (or fileUrl if external)
-
-Indexes you'll likely want early:
-
-* properties.by_buildingId
-* leases.by_propertyId
-* tickets.by_propertyId, tickets.by_vendorId
-* vendorDocuments.by_vendorId
-
----
-
-## What Gets Built (Skeleton Only)
-
-### 1. Project Root + DX
-
-* Next.js app initialized with App Router
-* Tailwind v4 wired (globals.css + config)
-* Makefile targets: setup, dev, seed, deploy
-* .env.example + .gitignore
-* README with end-to-end setup and deployment
-
-### 2. Clerk Auth (frontend + middleware)
-
-* Clerk provider in app/layout.tsx
-* sign-in and sign-up routes
-* middleware.ts protecting (dashboard) routes
-* simple role pattern:
-
-  * role stored in Convex users table
-  * helpers to check role (admin/manager/viewer)
-
-### 3. Convex backend skeleton
-
-* schema.ts defines tables + indexes
-* per-entity files:
-
-  * queries: list/get
-  * mutations: create/update/delete
-* functions enforce auth:
-
-  * read Clerk identity from Convex auth context
-  * map Clerk user to users row (upsert on first login)
-
-### 4. App pages + data wiring
-
-* routes for:
-
-  * /properties
-  * /tenants
-  * /maintenance
-  * /renewals
-  * /vendors
-* pages call Convex queries/mutations (basic list screens)
-* existing UI components can keep "mock fallback" until hooked up:
-
-  * if no data, show placeholder data or empty state
-
-### 5. Integration stubs (only interfaces + placeholders)
-
-Inside convex/integrations:
-
-* WhatsApp client interface + stub implementation
-* RERA client interface + stub
-* Ejari client interface + stub
-* AI Agent interface + stub (later can call OpenAI)
-
-No real API calls in MVP scaffold, just structure.
+### `vendors`
+| Field        | Type     | Example                  |
+| ------------ | -------- | ------------------------ |
+| name         | string   | "CoolTech HVAC"          |
+| nameAr       | string   | "كول تك"                 |
+| specialty    | string   | "hvac"                   |
+| phone        | string   | "+971509876543"          |
+| email        | string   | "info@cooltech.ae"       |
+| rating       | number   | 4.5                      |
+| createdAt    | timestamp| auto                     |
 
 ---
 
-## Key Decisions
+## Firebase Setup (One-Time)
 
-* Next.js App Router
+### Option A: Firebase Studio (Recommended for Hackathon)
 
-  * one app for UI + server glue, fewer moving parts than SPA + separate backend
-* Convex over Postgres/Firestore
-
-  * typed schema, realtime ready, backend functions colocated with DB logic
-* Clerk over custom auth
-
-  * fast auth UI, sessions, orgs, and route protection
-* No "frontend direct DB writes" outside Convex
-
-  * all writes go through Convex mutations, keeping business logic centralized
-
----
-
-## Task Breakdown for Collaborators
-
-| Area         | Task                                | Depends On                |
-| ------------ | ----------------------------------- | ------------------------- |
-| Infra        | Next.js + Tailwind v4 baseline      | —                         |
-| Auth         | Clerk setup + middleware protection | Next.js baseline          |
-| DB           | Convex project init + schema.ts     | —                         |
-| DB           | users upsert on login               | Clerk + Convex            |
-| DB           | CRUD functions per table            | schema                    |
-| UI           | Dashboard routes and layouts        | Next.js baseline          |
-| UI           | Hook up properties page to Convex   | properties functions      |
-| UI           | Hook up maintenance page            | tickets functions         |
-| UI           | Hook up renewals page               | leases/renewals functions |
-| UI           | Hook up vendors page                | vendors + docs functions  |
-| Integrations | WhatsApp/RERA/Ejari/AI stubs        | —                         |
-| Data         | seed json + seed script             | schema + mutations        |
-| Docs         | README + contributor guide          | all skeleton              |
-
----
-
-## .env.example (suggested)
+1. Go to [Firebase Studio](https://studio.firebase.google.com)
+2. Click **"Import a GitHub repo"**
+3. Select this repo (`homebase`)
+4. Firebase Studio auto-detects Next.js and sets up the environment
+5. Open terminal in Firebase Studio and run:
 
 ```bash
-# Clerk
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
+npm install
+```
 
-# Convex
-NEXT_PUBLIC_CONVEX_URL=
+6. Create a Firebase project (if you don't have one):
+   - Go to [Firebase Console](https://console.firebase.google.com)
+   - Create project → Enable **Firestore** (start in test mode)
+   - Go to Project Settings → General → scroll to "Your apps" → Add web app
+   - Copy the config object
 
-# Optional: integration stubs later
-WHATSAPP_TOKEN=
-RERA_API_KEY=
-EJARI_API_KEY=
-OPENAI_API_KEY=
+7. Create `.env.local` in project root:
+
+```bash
+NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123:web:abc123
+```
+
+8. Run the app:
+
+```bash
+npm run dev
+```
+
+### Option B: Local Development
+
+```bash
+# Clone and install
+git clone <repo-url> && cd homebase
+npm install
+
+# Add Firebase config (see step 7 above)
+cp .env.example .env.local
+# Edit .env.local with your Firebase config
+
+# Run
+npm run dev
 ```
 
 ---
 
-## Deployment
+## Deploy
 
-* Next.js: Vercel
-* Convex: Convex hosted backend (linked to your project)
-* Clerk: hosted auth, configured for your Vercel domain
+### From Firebase Studio
+```bash
+npm run build
+firebase deploy
+```
 
-Local dev:
+### From Local
+```bash
+npm run build
+firebase deploy
+```
 
-* make dev runs:
-
-  * next dev
-  * convex dev
+That's it. Your app is live at `https://your-project.web.app`.
 
 ---
 
-If you want, I can also generate the exact scaffold files (middleware.ts, convex/schema.ts, one full CRUD module example like properties.ts, and the dashboard route layout) so your repo boots with working auth + a real "Properties list" backed by Convex on day 1.
+## Seed Data
+
+Run the seed script to populate Firestore with demo data:
+
+```bash
+npm run seed
+```
+
+This creates:
+- 3 buildings
+- 10 properties across buildings
+- 8 tenants
+- 8 active leases
+- 5 maintenance tickets
+- 4 vendors
+
+---
+
+## Key Decisions (Hackathon Edition)
+
+| Decision                        | Rationale                                                  |
+| ------------------------------- | ---------------------------------------------------------- |
+| No auth                         | Hackathon demo — skip login, show the product              |
+| Firestore in test mode          | No security rules needed for demo                          |
+| Client-side Firestore SDK       | No backend server, no API routes, fewer moving parts       |
+| Flat collections (no nesting)   | Simpler queries, easier to reason about                    |
+| String dates (not Timestamps)   | Easier to work with in forms and display                   |
+| shadcn/ui components            | Beautiful defaults, no design time needed                  |
+| Static export to Firebase Hosting | Simplest deploy path, no Cloud Functions needed          |
+
+---
+
+## MVP Scope
+
+### In Scope (build these)
+- [x] Dashboard with summary stats
+- [x] Properties list — view, add, edit status
+- [x] Tenants list — view, add, link to property
+- [x] Leases — view, add, track renewals
+- [x] Maintenance tickets — create, assign vendor, update status
+- [x] Vendors directory — view, add
+- [x] Seed data for demo
+
+### Out of Scope (skip for hackathon)
+- [ ] User auth / login / roles
+- [ ] Security rules
+- [ ] File uploads (vendor docs, tenant docs)
+- [ ] WhatsApp / RERA / Ejari integrations
+- [ ] AI agent
+- [ ] Arabic RTL support
+- [ ] Mobile responsive (nice-to-have, not priority)
+
+---
+
+## Task Breakdown
+
+| #  | Task                                  | Time Est. | Depends On |
+| -- | ------------------------------------- | --------- | ---------- |
+| 1  | Init Next.js + Tailwind + shadcn/ui   | 15 min    | —          |
+| 2  | Firebase SDK setup (`lib/firebase.ts`)| 10 min    | 1          |
+| 3  | Firestore helpers (`lib/collections.ts`)| 15 min  | 2          |
+| 4  | Sidebar layout + navigation           | 20 min    | 1          |
+| 5  | Dashboard home (stats cards)          | 20 min    | 3, 4       |
+| 6  | Properties page (list + add form)     | 30 min    | 3, 4       |
+| 7  | Tenants page (list + add form)        | 25 min    | 3, 4       |
+| 8  | Leases page (list + add form)         | 25 min    | 3, 4       |
+| 9  | Maintenance page (list + add form)    | 25 min    | 3, 4       |
+| 10 | Vendors page (list + add form)        | 20 min    | 3, 4       |
+| 11 | Seed script                           | 15 min    | 3          |
+| 12 | Build + deploy to Firebase Hosting    | 10 min    | all        |
+
+**Total estimated: ~3.5 hours**
+
+---
+
+## .env.example
+
+```bash
+# Firebase (get from Firebase Console → Project Settings → Your Apps)
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+```
+
+---
+
+## Quick Reference
+
+```bash
+npm run dev        # Start dev server (localhost:3000)
+npm run build      # Build for production
+npm run seed       # Populate Firestore with demo data
+firebase deploy    # Deploy to Firebase Hosting
+```

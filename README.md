@@ -33,7 +33,7 @@ Everything runs through the Firebase JS SDK on the client side.
 
 | Layer     | Choice                  | Why                                      |
 | --------- | ----------------------- | ---------------------------------------- |
-| Framework | Next.js 14 (App Router) | File-based routing, React Server Comps   |
+| Framework | Next.js 16.0.10 (App Router) | File-based routing, React Server Comps   |
 | Styling   | Tailwind CSS v4         | Fast, utility-first                      |
 | UI Kit    | shadcn/ui               | Beautiful defaults, copy-paste components|
 | Database  | Cloud Firestore         | Realtime, zero-config, generous free tier|
